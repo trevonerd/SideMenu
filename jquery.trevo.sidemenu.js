@@ -102,6 +102,7 @@
             if ((lvl == 1 && !options.multi_l1_open) || (lvl == 2 && !options.multi_l2_open)) {
                 $('.lvl' + lvl).children('.open').each(function () {
                     if (!inAction) {
+                    	changeActiveStyle($(this), lvl, true)
                         $(this).animate({
                             easing: 'swing',
                             height: 'toggle'
