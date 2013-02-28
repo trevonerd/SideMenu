@@ -1,11 +1,12 @@
 /*!
- * jQuery TrEVo SideMenu v1.0
- * https://github.com/djtrevo/MegaMenu
+ * jQuery TrEVo SideMenu v1.1
+ * https://github.com/djtrevo/SideMenu
  * 
- * Copyright 2012, Marco Trevisani
+ * Copyright 2013, Marco Trevisani
  * * * * * * * * * * * * * * * * * * * * * *
  * 
- * Official Website: http://www.djtrevo.com
+ * Official Website: http://www.marcotrevisani.com
+ * Music Website: http://www.djtrevo.com
  * 
  * * * * * * * * * * * * * * * * * * * * * * 
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -17,8 +18,8 @@
             speed: 500,
             multi_l1_open: false,
             multi_l2_open: false,
-            image_l1_open: 'images/arrow_blue_open.png',
-            image_l1_close: 'images/arrow_blue.png'
+            l1_open_css: 'open',
+            l2_open_css: 'open'
         };
 
         var options = $.extend(defaults, options);
@@ -45,36 +46,40 @@
             })
 
             $(this).find('.lvl1 > a, .lvl2 > a').click(function () {
-                var padreClass = $(this).parent().prop("class");
-                var lvl = parseInt(padreClass.substring(3, 4));
-                subMenu = $(this).parent().find("ul.l" + parseInt(lvl + 1));
-                var isVisibile = subMenu.is(":visible");
-                if (subMenu.length != 0) {
-                    if (!isVisibile) {
-                        closeAll(lvl);
-                    }
+                var Link = $(this).prop("href");
+                if (Link.substr(-1) == '#') {
+                    var padreClass = $(this).parent().prop("class");
+                    var lvl = parseInt(padreClass.substring(padreClass.indexOf("lvl") + 3, padreClass.indexOf("lvl") + 4));
 
-                    if (!inAction) {
-                        inAction = true;
-                        changeActiveStyle($(this), lvl, isVisibile);
-                        subMenu.animate({
-                            easing: 'swing',
-                            height: 'toggle'
-                        }, {
-                            duration: options.speed,
-                            queue: false,
-                            complete: function () {
-                                if (subMenu.is(":visible")) {
-                                    subMenu.addClass("open");
-                                } else {
-                                    subMenu.removeClass("open");
+                    subMenu = $(this).parent().find("ul.l" + parseInt(lvl + 1));
+                    var isVisibile = subMenu.is(":visible");
+                    if (subMenu.length != 0) {
+                        if (!isVisibile) {
+                            closeAll(lvl);
+                        }
+
+                        if (!inAction) {
+                            inAction = true;
+                            changeActiveStyle($(this), lvl, isVisibile);
+                            subMenu.animate({
+                                easing: 'swing',
+                                height: 'toggle'
+                            }, {
+                                duration: options.speed,
+                                queue: false,
+                                complete: function () {
+                                    if (subMenu.is(":visible")) {
+                                        subMenu.addClass("open");
+                                    } else {
+                                        subMenu.removeClass("open");
+                                    }
+                                    inAction = false;
                                 }
-                                inAction = false;
-                            }
-                        });
-                    }
-                };
-                return false;
+                            });
+                        }
+                    };
+                    return false;
+                }
             })
         });
 
@@ -82,16 +87,16 @@
             switch (lvl) {
                 case 1:
                     if (isVisibile) {
-                        elem.parent().css("background-image", "url('" + options.image_l1_close + "')");
+                        elem.removeClass(options.l1_open_css)
                     } else {
-                        elem.parent().css("background-image", "url('" + options.image_l1_open + "')");
+                        elem.addClass(options.l1_open_css)
                     }
                     break;
                 case 2:
                     if (isVisibile) {
-                        //elem.css("font-family", "'CabinRegular'");
+                        elem.removeClass(options.l2_open_css)
                     } else {
-                        //elem.css("font-family", "'CabinSemiBold'");
+                        elem.addClass(options.l2_open_css)
                     }
                     break;
                 default:
@@ -100,16 +105,29 @@
 
         function closeAll(lvl) {
             if ((lvl == 1 && !options.multi_l1_open) || (lvl == 2 && !options.multi_l2_open)) {
-                $('.lvl' + lvl).children('.open').each(function () {
+                $('.lvl' + lvl).children('ul.open').each(function () {
                     if (!inAction) {
-                    	changeActiveStyle($(this), lvl, true)
+                        var aElement = $(this).parent().children("a");
+
+                        changeActiveStyle($(this), lvl, true)
                         $(this).animate({
                             easing: 'swing',
                             height: 'toggle'
                         }, {
                             duration: options.speed,
                             complete: function () {
-                                $(this).removeClass("open");
+                                switch (lvl) {
+                                    case 1:
+                                        $(this).removeClass(options.l1_open_css)
+                                        aElement.removeClass(options.l1_open_css)
+                                        break;
+                                    case 2:
+                                        $(this).removeClass(options.l2_open_css)
+                                        aElement.removeClass(options.l1_open_css)
+                                        break;
+                                    default:
+                                }
+
                             }
                         })
                     }
